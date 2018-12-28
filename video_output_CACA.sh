@@ -7,7 +7,7 @@
 read -p "Enter the path of the input video: " RAW_INPUT
 read -p "Enter the resolution of the original and output video (e.g. 1920x1080): " video_resolution
 read -p "Enter the FPS of the original video: " video_fps
-echo "\nConfirmed FPS: $FPS\nConfirmed Resolution: $video_resolution"
+echo "\nConfirmed Resolution: $video_resolution\nConfirmed FPS: $FPS"
 
 PAD_ADD='Y'
 PAD_NOT_ADD='N'
