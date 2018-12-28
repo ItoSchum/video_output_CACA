@@ -35,8 +35,8 @@
 5. **\* Black Pad:** When `Would you like to add a black pad as background? (Y/N) ` displayed <br>
 > ONLY when scaled video ouput included in the Output Mode option
 	
-	- Please input `Y` or `N` depending on whether you want a black pad added to you output video.
-	- **Attention:** The actual `resolution` of the output video may not exactly be the input you typed in before because of the text converting opration.
+- Please input `Y` or `N` depending on whether you want a black pad added to you output video.
+- **Attention:** The actual `resolution` of the output video may not exactly be the input you typed in before because of the text converting opration.
 
 
 6. **FFmpeg Thread Amount:** When `Enter the number of FFmpeg's thread amount: ` displayed<br>
