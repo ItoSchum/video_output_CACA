@@ -4,25 +4,40 @@
 # Video Export
 	# Ref: http://stariocek.asuscomm.com/watch-ascii-libcaca.html
 
+
+# 0. Preset Input
 read -p "Enter the path of the input video: " RAW_INPUT
-read -p "Enter the resolution of the original and output video (e.g. 1920x1080): " video_resolution
+read -p "Enter the resolution of the original video (e.g. 1920x1080): " video_resolution
 read -p "Enter the FPS of the original video: " video_fps
-echo "\nConfirmed Resolution: $video_resolution\nConfirmed FPS: $FPS"
+echo "\\nConfirmed Resolution: $video_resolution\nConfirmed FPS: $FPS"
 
 PAD_ADD='Y'
 PAD_NOT_ADD='N'
 
-read -p "Would you like to add a black pad as background? (Y/N) " pad_add_choice_input
-pad_add_choice=$(echo $pad_add_choice_input | tr "[:lower:]" "[:upper:]")
+OUTPUT_UNSCALED_ONLY='1'
+OUTPUT_SCALED_ONLY='2'
+OUTPUT_BOTH='3'
+VERBOSE_MODE='4'
 
-ORIGINAL_KEEP='Y'
-ORIGINAL_NOT_KEEP='N'
-VERBOSE_MODE='V'
+read -p "
+Please Choose a Output Mode: 
 
-read -p "Would you like to keep the original yuv420p file? (Y/N) " yuv420p_keep_choice_input
-yuv420p_keep_choice=$(echo $yuv420p_keep_choice_input | tr "[:lower:]" "[:upper:]")
+	1 -- Output Unscaled Only
+	2 -- Output Scaled Only
+	3 -- Both 1 and 2, 
+	4 -- Verbose Mode
+
+Mode Choice: " output_mode
+
+if [ $output_mode != $OUTPUT_UNSCALED_ONLY ]; then
+	
+	read -p "Would you like to add a black pad as background? (Y/N) " pad_add_choice_input
+	pad_add_choice=$(echo $pad_add_choice_input | tr "[:lower:]" "[:upper:]")
+fi
 
 read -p "Enter the number of FFmpeg's thread amount: " thread_amount
+
+
 
 # 1. video2jpg
 echo "Step 1: Video to JPG"
@@ -59,49 +74,82 @@ echo "Step 4: PNG to Video"
 # 	mv $i $(basename $i -full.png).png
 # done
 
-ffmpeg -threads $thread_amount -start_number 1 \
--i %07d-full.png \
--i "$RAW_INPUT" \
--movflags +faststart \
--c:v libx264 -pix_fmt yuv420p -crf 20 -r $video_fps \
--preset slower -profile:v high -level 5.0 \
--map 0:v:0 -map 1:a:0 output_yuv420.mp4
+if [ $output_mode == $OUTPUT_UNSCALED_ONLY ]; then
 
-# YUV444 to YUV420
-# INPUT=png_packup.mp4
-# OUTPUT=yuv420_packup.mp4
-# ffmpeg -i $INPUT -movflags +faststart -pix_fmt yuv420p -c:v libx264 -crf 20 -preset slower -profile:v high -level 5.0 $OUTPUT
+	ffmpeg -threads $thread_amount -start_number 1 \
+	-i %07d-full.png \
+	-i "$RAW_INPUT" \
+	-movflags +faststart \
+	-c:v libx264 -pix_fmt yuv420p -crf 20 -r $video_fps \
+	-preset slower -profile:v high -level 5.0 \
+	-vf "crop=2458:1296:16:16" \
+	-map 0:v:0 -map 1:a:0 output_yuv420.mp4
 
 
-# Frame Size Modify (Including Scale and Pad)
-INPUT=output_yuv420.mp4
-OUTPUT=output_1080p.mp4
-
-
-if [ $pad_add_choice == $PAD_NOT_ADD ]; then
-	ffmpeg -threads $thread_amount \
-	-i $INPUT \
-	-c:a copy \
+elif [ $output_mode == $OUTPUT_SCALED_ONLY ]; then
+	
+	ffmpeg -threads $thread_amount -start_number 1 \
+	-i %07d-full.png \
+	-i "$RAW_INPUT" \
+	-movflags +faststart \
+	-c:v libx264 -pix_fmt yuv420p -crf 20 -r $video_fps \
+	-preset slower -profile:v high -level 5.0 \
 	-vf "crop=2458:1296:16:16, scale=1920:1080:force_original_aspect_ratio=decrease" \
-	$OUTPUT
+	-map 0:v:0 -map 1:a:0 output_yuv420.mp4
 
-elif [ $pad_add_choice == $PAD_ADD ]; then
-	ffmpeg -threads $thread_amount \
-	-i $INPUT \
-	-c:a copy \
-	-vf "crop=2458:1296:16:16, scale=1920:1080:force_original_aspect_ratio=decrease, pad=1920:1080:0:(1080-in_h)/2:black" \
-	$OUTPUT
-fi	
+	# Frame Size Modify (Including Scale and Pad)
+	INPUT=output_yuv420.mp4
+	OUTPUT=output_1080p.mp4
+
+	if [ $pad_add_choice == $PAD_NOT_ADD ]; then
+		ffmpeg -threads $thread_amount -i $INPUT -c:a copy \
+		-vf "scale=1920:1080:force_original_aspect_ratio=decrease" \
+		$OUTPUT
+
+	elif [ $pad_add_choice == $PAD_ADD ]; then
+		ffmpeg -threads $thread_amount \
+		-i $INPUT -c:a copy \
+		-vf "scale=1920:1080:force_original_aspect_ratio=decrease, pad=1920:1080:0:(1080-in_h)/2:black" \
+		$OUTPUT
+	fi	
 
 
-if [ $yuv420p_keep_choice != $VERBOSE_MODE ]; then
+elif [ $output_mode == $OUTPUT_BOTH ]; then
+
+	ffmpeg -threads $thread_amount -start_number 1 \
+	-i %07d-full.png \
+	-i "$RAW_INPUT" \
+	-movflags +faststart \
+	-c:v libx264 -pix_fmt yuv420p -crf 20 -r $video_fps \
+	-preset slower -profile:v high -level 5.0 \
+	-vf "crop=2458:1296:16:16" \
+	-map 0:v:0 -map 1:a:0 output_yuv420.mp4
+
+
+	# Frame Size Modify (Including Scale and Pad)
+	INPUT=output_yuv420.mp4
+	OUTPUT=output_1080p.mp4
+
+
+	if [ $pad_add_choice == $PAD_NOT_ADD ]; then
+		ffmpeg -threads $thread_amount -i $INPUT -c:a copy \
+		-vf "scale=1920:1080:force_original_aspect_ratio=decrease" \
+		$OUTPUT
+
+	elif [ $pad_add_choice == $PAD_ADD ]; then
+		ffmpeg -threads $thread_amount \
+		-i $INPUT -c:a copy \
+		-vf "scale=1920:1080:force_original_aspect_ratio=decrease, pad=1920:1080:0:(1080-in_h)/2:black" \
+		$OUTPUT
+	fi	
+fi
+
+
+
+if [ $output_mode != $VERBOSE_MODE ]; then
 	rm *.jpg
 	rm *.html
 	rm *.png
-
-	if [ $yuv420p_keep_choice == $ORIGINAL_NOT_KEEP ]; then
-		rm ./output_yuv420.mp4
-	fi
 fi
 
 

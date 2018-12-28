@@ -26,8 +26,9 @@
 	- **Attention:** The actual `resolution` of the output video may not exactly be the input you typed in before because of the text converting opration.
 
 5. **Whether Keep the Temporary File:** When `Would you like to keep the original yuv420p file? (Y/N) ` displayed<br>
-	- Please input `Y` or `N` depending on whether you want to keep the uncropped temporary Video.
+	- Please input `Y` or `N` depending on whether you want to keep the uncropped temporary Video. Or `V` for Verbose Mode
 	- `Y` is recommended, considering the preset cropping operation may not suitable for every setting.
+	- **Verbose Mode** will keep all the .jpg .html and .png files created during the converting process.
 
 
 6. **FFmpeg Thread Amount:** When `Enter the number of FFmpeg's thread amount: ` displayed<br>
