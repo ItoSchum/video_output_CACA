@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/bash
 # -*- coding: UTF-8 -*- 
 
 # Video Export
