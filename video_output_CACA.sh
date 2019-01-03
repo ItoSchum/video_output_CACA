@@ -79,7 +79,7 @@ if [ $output_mode == $OUTPUT_UNSCALED_ONLY ]; then
 	-i %07d-full.png \
 	-i "$RAW_INPUT" \
 	-movflags +faststart \
-	-c:v libx264 -pix_fmt yuv420p -crf 20 -r $video_fps \
+	-c:v libx264 -pix_fmt yuv420p -r $video_fps \
 	-preset slower -profile:v high -level 5.0 \
 	-vf "crop=2458:1296:16:16" \
 	-map 0:v:0 -map 1:a:0 output_yuv420.mp4
@@ -91,7 +91,7 @@ elif [ $output_mode == $OUTPUT_SCALED_ONLY ]; then
 	-i %07d-full.png \
 	-i "$RAW_INPUT" \
 	-movflags +faststart \
-	-c:v libx264 -pix_fmt yuv420p -crf 20 -r $video_fps \
+	-c:v libx264 -pix_fmt yuv420p -r $video_fps \
 	-preset slower -profile:v high -level 5.0 \
 	-vf "crop=2458:1296:16:16, scale=1920:1080:force_original_aspect_ratio=decrease" \
 	-map 0:v:0 -map 1:a:0 output_yuv420.mp4
@@ -119,7 +119,7 @@ elif [ $output_mode == $OUTPUT_BOTH ]; then
 	-i %07d-full.png \
 	-i "$RAW_INPUT" \
 	-movflags +faststart \
-	-c:v libx264 -pix_fmt yuv420p -crf 20 -r $video_fps \
+	-c:v libx264 -pix_fmt yuv420p -r $video_fps \
 	-preset slower -profile:v high -level 5.0 \
 	-vf "crop=2458:1296:16:16" \
 	-map 0:v:0 -map 1:a:0 output_yuv420.mp4
