@@ -44,3 +44,7 @@
 
 ### Output Path
 - All the file will be output in the current directory referring to the terminal tty.
+
+### Demo
+YouTube: <https://www.youtube.com/watch?v=JbMo_qHuyRw>  
+Bilibili: <https://www.bilibili.com/video/av30360792>
